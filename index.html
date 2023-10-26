@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Зміна теми оформлення</title>
+    <link id="theme-stylesheet" rel="stylesheet" type="text/css" href="light-theme.css">
+    <style>
+        #theme-switch {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: block;
+        }
+
+        #theme-switch:hover {
+            background-color: #f0f0f0;
+        }
+
+        #clear-storage {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: block;
+        }
+
+        #clear-storage:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h1>Зміна теми оформлення</h1>
+        <label for="theme-switch">Оберіть тему:</label>
+        <select id="theme-switch" v-model="selectedTheme" @change="changeTheme">
+            <option value="light">Світла тема</option>
+            <option value="dark">Темна тема</option>
+        </select>
+        <br>
+        <button id="clear-storage" @click="clearLocalStorage">Очистити Local Storage</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.0.0/dist/vue.global.prod.js"></script>
+    <script>
+        const { ref, onMounted } = Vue;
+        const app = Vue.createApp({
+            setup() {
+                const selectedTheme = ref('light');
+
+                const changeTheme = () => {
+                    const stylesheet = document.getElementById('theme-stylesheet');
+                    if (selectedTheme.value === 'dark') {
+                        stylesheet.href = 'dark-theme.css';
+                    } else {
+                        stylesheet.href = 'light-theme.css';
+                    }
+                    try {
+                        localStorage.setItem('selectedTheme', selectedTheme.value);
+                    } catch (e) {
+                        if (e.name === 'QUOTA_EXCEEDED_ERR') {
+                            alert('Перевищений ліміт локального сховища');
+                        }
+                    }
+                };
+
+                const clearLocalStorage = () => {
+                    localStorage.clear();
+                    selectedTheme.value = 'light';
+                    changeTheme();
+                    alert('LocalStorage очищено.');
+                };
+
+                onMounted(() => {
+                    const savedTheme = localStorage.getItem('selectedTheme');
+                    if (savedTheme) {
+                        selectedTheme.value = savedTheme;
+                    }
+                });
+
+                return {
+                    selectedTheme,
+                    changeTheme,
+                    clearLocalStorage
+                };
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+
+</html>
